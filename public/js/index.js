@@ -11,21 +11,22 @@ socket.on('disconnect', function () {
 const messagesList = document.getElementById('messages');
 
 socket.on('newMessage', function(message) {
-  console.log('New message', message);
+  const formattedTime = moment(message.createdAt).format('h:mm a');
 
   // Create new 'li' element
   const li = document.createElement('li');
-  li.innerText = `${message.from}: ${message.text}`;
+  li.innerText = `${message.from} ${formattedTime}: ${message.text}`;
 
   // Append message to messages list
   messagesList.appendChild(li);
 });
 
 socket.on('newLocationMessage', function(message) {
+  const formattedTime = moment(message.createdAt).format('h:mm a');
 
   // Create new 'li' element
   const li = document.createElement('li');
-  li.innerText = `${message.from}: `;
+  li.innerText = `${message.from} ${formattedTime}: `;
 
   // Create new 'a' element to store the google maps url
   const a = document.createElement('a');
@@ -77,6 +78,8 @@ locationButton.addEventListener('click', function() {
     locationButton.innerText = 'Send location';
     alert('Unable to fetch location.')
   }, {
-      enableHighAccuracy: true
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 5000
   });
 });
