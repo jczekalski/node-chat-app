@@ -1,10 +1,3 @@
-// Assign HTML elements to variables
-const messageForm = document.getElementById('message-form');
-const messageInput = document.getElementById('message-input');
-const messagesList = document.getElementById('messages');
-const locationButton = document.getElementById('send-location');
-
-// Socket.io
 const socket = io();
 
 socket.on('connect', function () {
@@ -14,6 +7,8 @@ socket.on('connect', function () {
 socket.on('disconnect', function () {
   console.log('Disconnected from server')
 });
+
+const messagesList = document.getElementById('messages');
 
 socket.on('newMessage', function(message) {
   console.log('New message', message);
@@ -45,34 +40,43 @@ socket.on('newLocationMessage', function(message) {
   messagesList.appendChild(li);
 });
 
-// On form submit
+// messageForm on submit handler
+const messageForm = document.getElementById('message-form');
+const messageTextbox = document.getElementById('message-textbox');
+
 messageForm.addEventListener('submit', function(e) {
   e.preventDefault();
   socket.emit('createMessage', {
     from: 'User',
-    text: messageInput.value
+    text: messageTextbox.value
   }, function () {
-
+    messageTextbox.value = '';
   });
-  messageForm.reset();
 });
 
-// On location button click
+// locationButton on click handler
+const locationButton = document.getElementById('send-location');
+
 locationButton.addEventListener('click', function() {
   if (!navigator.geolocation) {
     return alert('Geolocation not supported by your browser.')
   }
 
-  const options = {
-    enableHighAccuracy: true
-  }
+  locationButton.setAttribute('disabled', 'disabled');
+  locationButton.innerText = 'Sending location...';
 
   navigator.geolocation.getCurrentPosition(function (position) {
+    locationButton.removeAttribute('disabled');
+    locationButton.innerText= 'Send location';
     socket.emit('createLocationMessage', {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude
     })
   }, function () {
+    locationButton.removeAttribute('disabled');
+    locationButton.innerText = 'Send location';
     alert('Unable to fetch location.')
-  }, options);
+  }, {
+      enableHighAccuracy: true
+  });
 });
