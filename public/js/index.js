@@ -12,33 +12,26 @@ const messagesList = document.getElementById('messages');
 
 socket.on('newMessage', function(message) {
   const formattedTime = moment(message.createdAt).format('h:mm a');
+  const template = document.getElementById('message-template').innerHTML;
+  const html = Mustache.render(template, {
+    text: message.text,
+    from: message.from,
+    createdAt: formattedTime
+  });
 
-  // Create new 'li' element
-  const li = document.createElement('li');
-  li.innerText = `${message.from} ${formattedTime}: ${message.text}`;
-
-  // Append message to messages list
-  messagesList.appendChild(li);
+  messagesList.innerHTML += html;
 });
 
 socket.on('newLocationMessage', function(message) {
   const formattedTime = moment(message.createdAt).format('h:mm a');
+  const template = document.getElementById('location-message-template').innerHTML;
+  const html = Mustache.render(template, {
+    from: message.from,
+    createdAt: formattedTime,
+    url: message.url
+  });
 
-  // Create new 'li' element
-  const li = document.createElement('li');
-  li.innerText = `${message.from} ${formattedTime}: `;
-
-  // Create new 'a' element to store the google maps url
-  const a = document.createElement('a');
-  a.innerText = "My current location";
-  a.setAttribute('target', '_blank');
-  a.setAttribute('href', message.url);
-
-  // Append the url to the 'li' element
-  li.appendChild(a);
-
-  // Append message to messages list
-  messagesList.appendChild(li);
+  messagesList.innerHTML += html;
 });
 
 // messageForm on submit handler
