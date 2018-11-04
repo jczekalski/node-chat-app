@@ -42,9 +42,21 @@ socket.on('disconnect', function () {
   console.log('Disconnected from server')
 });
 
-const messagesList = document.getElementById('messages');
+socket.on('updateUserList', function (users) {
+  document.getElementById('users').innerHTML = "";
+  const ol = document.createElement('ol');
+
+  users.forEach(function (user) {
+    const li = document.createElement('li');
+    li.innerText = user;
+    ol.appendChild(li);
+  });
+
+  document.getElementById('users').appendChild(ol);
+});
 
 socket.on('newMessage', function(message) {
+  const messagesList = document.getElementById('messages');
   const formattedTime = moment(message.createdAt).format('h:mm a');
   const template = document.getElementById('message-template').innerHTML;
   const html = Mustache.render(template, {
@@ -58,6 +70,7 @@ socket.on('newMessage', function(message) {
 });
 
 socket.on('newLocationMessage', function(message) {
+  const messagesList = document.getElementById('messages');
   const formattedTime = moment(message.createdAt).format('h:mm a');
   const template = document.getElementById('location-message-template').innerHTML;
   const html = Mustache.render(template, {
